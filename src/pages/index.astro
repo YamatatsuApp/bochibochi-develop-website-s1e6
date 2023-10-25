@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GridBlogs from '../components/GridBlogs.astro';
+import { getCollection } from 'astro:content';
+
+export const sortedBlogs = await (async function () {
+  return (await getCollection('blog'))
+    .map((b) => {
+      const tags = Array.isArray(b.data.tags) ? b.data.tags : [];
+      if (!tags.length || !tags.some(Boolean)) b.data.tags = ['その他'];
+      return b;
+    })
+    .sort((a, b) => new Date(b.data.createdAt).valueOf() - new Date(a.data.createdAt).valueOf());
+})();
+
+const pageTitle = 'Welcome to My Site';
+---
+
+<BaseLayout title={pageTitle}>
+  <main>
+    <div class="relative w-4/5 m-auto">
+      <img src="/images/welcome.jpg" class="w-full" />
+      <p class="absolute top-8 text-6xl ml-8">Welcom to My Site</p>
+    </div>
+    <div class="max-w-6xl mx-auto my-6">
+      <h1 class="text-2xl text-center">最近の投稿</h1>
+      <GridBlogs blogs={sortedBlogs.slice(0, 3)} />
+    </div>
+  </main>
+</BaseLayout>

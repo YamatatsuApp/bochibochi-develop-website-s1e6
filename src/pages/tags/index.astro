@@ -1,0 +1,42 @@
+---
+import { sortedBlogs } from '../index.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const tags = sortedBlogs
+  .flatMap((b) => b.data.tags)
+  .filter((t) => ![undefined, null, ''].includes(t)) as string[];
+const tagsMap = tags.reduce<Map<string, number>>(
+  (acc, cur) => acc.set(cur, (acc.get(cur) || 0) + 1),
+  new Map(),
+);
+function optimizeText(text: string): string {
+  const regExpHirakana = new RegExp(`[ぁ-ゖゝゞ]`, 'g');
+  return text.toLowerCase().replace(regExpHirakana, (character: string) => {
+    return String.fromCharCode(character.charCodeAt(0) + 0x60);
+  });
+}
+const sortedTags = [...tagsMap.keys()].sort((a, b) => {
+  if (a === 'その他' && b !== 'その他') return 1;
+  if (a !== 'その他' && b === 'その他') return -1;
+  const optimizeA = optimizeText(a);
+  const optimizeB = optimizeText(b);
+  if (optimizeA < optimizeB) return -1;
+  if (optimizeA > optimizeB) return 1;
+  return 0;
+});
+
+const pageTitle = 'タグの一覧';
+---
+
+<BaseLayout title={pageTitle}>
+  <h1 class="text-2xl text-center">タグの一覧</h1>
+  <div class="flex-wrap max-w-lg m-auto">
+    {
+      sortedTags.map((tag) => (
+        <div class="inline-block m-2 px-2 rounded-full bg-black text-white">
+          <a href={`/tags/${tag}`}>{`${tag}(${tagsMap.get(tag)})`}</a>
+        </div>
+      ))
+    }
+  </div>
+</BaseLayout>

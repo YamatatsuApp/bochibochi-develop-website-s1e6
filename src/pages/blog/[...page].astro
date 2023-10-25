@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import type { GetStaticPathsOptions, Page } from 'astro';
+import { type CollectionEntry } from 'astro:content';
+import { sortedBlogs } from '../../pages/index.astro';
+import GridBlogs from '../../components/GridBlogs.astro';
+import PageNavi from '../../components/PageNavi.astro';
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  return paginate(sortedBlogs, { pageSize: 6 });
+}
+
+interface Props {
+  page: Page<CollectionEntry<'blog'>>;
+}
+const { page } = Astro.props;
+
+const pageTitle = 'ブログの一覧';
+---
+
+<BaseLayout title={pageTitle}>
+  <main class="max-w-6xl mx-auto py-8">
+    <h1 class="text-4xl text-center">ブログの一覧</h1>
+    <GridBlogs blogs={page.data} />
+    <PageNavi page={page} />
+  </main>
+</BaseLayout>

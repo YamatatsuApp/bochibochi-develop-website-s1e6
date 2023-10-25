@@ -1,0 +1,42 @@
+---
+import { type CollectionEntry } from 'astro:content';
+
+interface Props {
+  blogs: CollectionEntry<'blog'>[];
+}
+
+const { blogs } = Astro.props;
+---
+
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
+  {
+    blogs.map((blog) => (
+      <div
+        class="transition-all duration-200 ease-in-out h-full relative top-0 pointer-events-none
+        hover:-top-2 shadow-lg hover:shadow-xl bg-white rounded-xl overflow-hidden"
+      >
+        <a href={`/blog/${blog.slug}`} class="pointer-events-auto">
+          <img
+            class="w-full aspect-[15/7] object-cover"
+            src={blog.data.image.url}
+            alt={blog.data.image.alt}
+          />
+          <h2 class="m-1 text-2xl leading-tight text-center">{blog.data.title}</h2>
+        </a>
+        <div class="flex-wrap">
+          {blog.data.tags!.map((tag: string) => (
+            <div
+              class="inline-block pointer-events-auto m-1 px-2 rounded-full text-xs
+            bg-black text-white"
+            >
+              <a href={`/tags/${tag}`}>{tag}</a>
+            </div>
+          ))}
+        </div>
+        <div class="text-xs text-gray-600 m-2 text-center">
+          {blog.data.createdAt.toLocaleString('ja-JP', { dateStyle: 'short' })}
+        </div>
+      </div>
+    ))
+  }
+</section>

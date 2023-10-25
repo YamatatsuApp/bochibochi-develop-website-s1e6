@@ -1,0 +1,45 @@
+---
+import { type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sortedBlogs } from '../../pages/index.astro';
+
+export async function getStaticPaths() {
+  return sortedBlogs.map((blog) => {
+    return {
+      params: { slug: blog.slug },
+      props: { blog },
+    };
+  });
+}
+
+interface Props {
+  blog: CollectionEntry<'blog'>;
+}
+
+const { blog } = Astro.props;
+const { tags } = blog.data;
+const { Content } = await blog.render();
+---
+
+<BaseLayout title={blog.data.title}>
+  <div class="max-w-2xl m-auto">
+    <img class="rounded-xl mx-auto" src={blog.data.image.url} alt={blog.data.image.alt} />
+    <div class="text-sm text-gray-600 m-2 text-right">
+      {blog.data.createdAt.toLocaleString('ja-JP', { dateStyle: 'short' })}
+    </div>
+    <h1 class="my-6 text-4xl font-extrabold">{blog.data.title}</h1>
+    <div class="flex-wrap mb-8">
+      {
+        tags!.map((tag) => (
+          <a
+            href={`/tags/${tag}`}
+            class="inline-block m-1 px-2 rounded-full text-xs bg-black text-white"
+          >
+            {tag}
+          </a>
+        ))
+      }
+    </div>
+    <article class="prose"><Content /></article>
+  </div>
+</BaseLayout>

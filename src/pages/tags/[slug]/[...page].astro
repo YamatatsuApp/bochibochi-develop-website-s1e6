@@ -1,0 +1,36 @@
+---
+import { sortedBlogs } from '../../index.astro';
+import type { GetStaticPathsOptions, Page } from 'astro';
+import { type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GridBlogs from '../../../components/GridBlogs.astro';
+import PageNavi from '../../../components/PageNavi.astro';
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const tagsMap = sortedBlogs.reduce<Map<string, typeof sortedBlogs>>((acc, cur) => {
+    cur.data.tags!.forEach((tag: string) => {
+      acc.set(tag, acc.get(tag) ? acc.get(tag)!.concat(cur) : [cur]);
+    });
+    return acc;
+  }, new Map());
+
+  return [...tagsMap.entries()].flatMap(([tag, blogs]) => {
+    return paginate(blogs, { params: { slug: tag }, pageSize: 6 });
+  });
+}
+
+interface Props {
+  page: Page<CollectionEntry<'blog'>>;
+}
+
+const { slug } = Astro.params;
+const { page } = Astro.props;
+---
+
+<BaseLayout title={'タグ：' + slug || ''}>
+  <main class="max-w-6xl mx-auto py-8">
+    <h1 class="text-2xl text-center">タグ：{slug}</h1>
+    <GridBlogs blogs={page.data} />
+    <PageNavi page={page} />
+  </main>
+</BaseLayout>

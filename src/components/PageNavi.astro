@@ -1,0 +1,28 @@
+---
+import { Icon } from 'astro-iconify';
+import { type CollectionEntry } from 'astro:content';
+import type { Page } from 'astro';
+
+interface Props {
+  page: Page<CollectionEntry<'blog'>>;
+}
+const { page } = Astro.props;
+---
+
+<nav class="flex justify-center gap-4 text-gray-500">
+  {
+    page.url.prev ? (
+      <a href={page.url.prev}>
+        <Icon name="ep:arrow-left" class="w-6" />
+      </a>
+    ) : null
+  }
+  <div>{page.lastPage > 1 ? `${page.currentPage}/${page.lastPage}` : null}</div>
+  {
+    page.url.next ? (
+      <a href={page.url.next}>
+        <Icon name="ep:arrow-right" class="w-6" />
+      </a>
+    ) : null
+  }
+</nav>
